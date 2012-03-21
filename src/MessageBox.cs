@@ -1,0 +1,106 @@
+ using System;
+using System.Drawing;
+using System.Linq;
+
+using Android.App;
+using Android.Content;
+using Android.Content.Res;
+using Android.Runtime;
+using Android.Views;
+using Android.Widget;
+using Android.OS;
+
+namespace System.Windows.Forms
+{
+    public class AndroidFormsAdapter
+    {
+        public static View CurrentView{get; set;}
+
+    }
+
+    public class Form
+    {
+    }
+    
+    public class MessageBox
+    {
+        public MessageBox ()
+        {
+        }
+
+        public static int Show(string text, string title)
+        {
+            AlertDialog.Builder ad = new AlertDialog.Builder(AndroidFormsAdapter.CurrentView.Context);
+            ad.SetMessage(text);
+            ad.SetIcon(Android.Resource.Drawable.IcMenuHelp);
+            ad.SetTitle(title);
+            ad.SetPositiveButton(Android.Resource.String.Ok, (ob, args) => {} );
+            ad.Create().Show();
+            return 0;
+        }
+    }
+
+    public class MessageForm
+    {
+        AlertDialog.Builder ad;
+
+        public MessageForm(object _base, string title, string[] body)
+        {
+            ad = new AlertDialog.Builder(AndroidFormsAdapter.CurrentView.Context);
+            ad.SetMessage(body[0]);//TODO
+            ad.SetIcon(Android.Resource.Drawable.IcMenuHelp);
+            ad.SetTitle(title);
+            ad.SetPositiveButton(Android.Resource.String.Ok, (ob, args) => {} );
+        }
+
+        public int Show()
+        {
+            ad.Create().Show();
+            return 0;
+        }
+    }
+
+    public class PaintEventArgs
+    {
+        public PaintEventArgs(Graphics g, Rectangle r)
+        {
+            Graphics = g;
+            ClipRectangle = r;
+        }
+        public Graphics Graphics{get; set;}
+        public Rectangle ClipRectangle{get; set;}
+    }
+
+    public class Timer : IDisposable
+    {
+        System.Timers.Timer cdt;
+        public event EventHandler Tick;
+        private bool enabled;
+
+        public bool Enabled {
+            get{
+                return enabled;
+            }
+            set{
+                //
+                enabled = value;
+                if (enabled){
+                    cdt = new System.Timers.Timer(Interval);
+                    cdt.Elapsed += (sender, e) => {
+                        Tick(this, e);
+                        cdt.Enabled = false;
+                    };
+                    cdt.Enabled = true;
+                }
+
+            }
+        }
+
+        public int Interval{get; set;}
+
+        public void Dispose()
+        {
+        }
+    }
+}
+
