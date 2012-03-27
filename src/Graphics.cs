@@ -136,6 +136,7 @@ namespace System.Drawing
             APaint.Color = brush.Color.AColor;
             APaint.TextSize = APixels(font.Size);
             APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
+            //Android.Graphics.TypefaceStyle
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
             APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
             using(var fm = APaint.GetFontMetricsInt())
@@ -152,10 +153,25 @@ namespace System.Drawing
             APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
             APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
-            //APaint.BreakText
+
             var fm = APaint.GetFontMetricsInt();
             var height = -fm.Top;
-            ACanvas.DrawText(text, (int)rect.X, (int)rect.Y+height, APaint);
+            var cline = 0;
+            var lineheight = -fm.Top + fm.Bottom;
+
+            var coffset = 0;
+            while(coffset < text.Length)
+            {
+                var tpart = text.Substring(coffset);
+                var tlen = APaint.BreakText(tpart, true, rect.Width, null);
+                int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
+                if (spaceoffset > 0 && tlen < text.Length)
+                    tlen = spaceoffset;
+                ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
+                coffset += tlen;
+                cline++;
+            }
+
             fm.Dispose();
         }
 
