@@ -13,7 +13,7 @@
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <AssemblyName>AndroidDrawing</AssemblyName>
     <TargetFrameworkVersion>v2.1</TargetFrameworkVersion>
-    <MonoAndroidVersion>v2.2</MonoAndroidVersion>
+    <MonoAndroidVersion>v2.1</MonoAndroidVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Env)' == 'alone' ">
     <MSBuildExtensionsPath>D:\projects\MonoAndroid</MSBuildExtensionsPath>
