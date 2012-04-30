@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Graphics.cs" />
-    <Compile Include="src\MessageBox.cs" />
+    <Compile Include="src\MiscForms.cs" />
     <Compile Include="src\Stubs.cs" />
   </ItemGroup>
 </Project>

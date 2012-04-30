@@ -27,12 +27,6 @@ namespace System
             }
         }
 
-        namespace ComboBox{
-            public class ObjectCollection
-            {
-                public void Add(object o){}
-            }
-        }
     }
 }
 

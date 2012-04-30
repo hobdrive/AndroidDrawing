@@ -28,7 +28,7 @@ namespace System.Drawing
 
         void Init()
         {
-            LineWidth = Math.Max (1, (int)((float)DeviceDPI / (float)PointsDPI));
+            LineWidth = 1;//Math.Max (1, (int)((float)DeviceDPI / (float)PointsDPI));
             Flags = Android.Graphics.PaintFlags.AntiAlias;
         }
 
@@ -173,6 +173,34 @@ namespace System.Drawing
             }
 
             fm.Dispose();
+        }
+
+        public Size MeasureStringWidth(string text, Font font, int width)
+        {
+            APaint.TextSize = APixels(font.Size);
+            APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
+            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
+            APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
+
+            var fm = APaint.GetFontMetricsInt();
+            var height = -fm.Top;
+            var cline = 0;
+            var lineheight = -fm.Top + fm.Bottom;
+
+            var coffset = 0;
+            while(coffset < text.Length)
+            {
+                var tpart = text.Substring(coffset);
+                var tlen = APaint.BreakText(tpart, true, width, null);
+                int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
+                if (spaceoffset > 0 && tlen < text.Length)
+                    tlen = spaceoffset;
+                //ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
+                coffset += tlen;
+                cline++;
+            }
+            fm.Dispose();
+            return new Size(width, (int)(lineheight*cline));
         }
 
         public Size MeasureString(string text, Font font)
@@ -348,7 +376,7 @@ namespace System.Drawing
 
         public Size Size{ get{ return new Size(Width, Height); }}
 
-        public void Dispose()
+        public virtual void Dispose()
         {
         }
     }
@@ -368,11 +396,23 @@ namespace System.Drawing
         {
         }
 
+        public void Clear(){
+            ABitmap.EraseColor(Color.Transparent.Value);
+        }
+
         public override int Width{
             get{ return ABitmap.Width; }
         }
         public override int Height{
             get{ return ABitmap.Height; }
+        }
+
+        public override void Dispose(){
+            if (ABitmap != null)
+            {
+                ABitmap.Dispose();
+                ABitmap = null;
+            }
         }
 
     }
@@ -515,17 +555,22 @@ namespace System.Drawing
 
         public bool Contains(Rectangle r)
         {
-            return this.Contains(r.Location) && r.Contains(new Point(r.Right, r.Bottom));
+            return this.Contains(r.Location) && r.Contains(r.Right, r.Bottom);
         }
 
         public bool Contains(Point p)
         {
-            return this.Left <= p.X && this.Right >= p.X && this.Top <= p.Y && this.Bottom >= p.Y;
+            return Contains (p.X, p.Y);
+        }
+
+        public bool Contains(int x, int y)
+        {
+            return this.Left <= x && this.Right >= x && this.Top <= y && this.Bottom >= y;
         }
 
         public bool IntersectsWith(Rectangle r)
         {
-            return this.Contains(r.Location) || this.Contains(new Point(r.Right, r.Bottom)) || r.Contains(this.Location) || r.Contains(new Point(this.Right, this.Bottom));
+            return this.Contains(r.Left, r.Top) || this.Contains(r.Right, r.Bottom) || r.Contains(this.Left, this.Top) || r.Contains(this.Right, this.Bottom);
         }
 
         public Android.Graphics.Rect ToA()
