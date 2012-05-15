@@ -103,7 +103,7 @@ namespace System.Drawing
         {
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             var sa = source.ToA();
-            var da = new Android.Graphics.Rect(x,y, x+image.Width, y+image.Height);
+            var da = new Android.Graphics.Rect(x,y, x+source.Width, y+source.Height);
             ACanvas.DrawBitmap((image as Bitmap).ABitmap, sa, da, APaint);
             da.Dispose();
             sa.Dispose();
@@ -133,7 +133,7 @@ namespace System.Drawing
 
         public void DrawLine(Pen pen, int x1, int y1, int x2, int y2)
         {
-            APaint.Color = pen.Color.AColor;
+            APaint.Color = pen.Color.AColor();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             APaint.Flags = Flags;
             APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
@@ -143,7 +143,7 @@ namespace System.Drawing
 
         public void DrawRectangle(Pen pen, int x1, int y1, int w, int h)
         {
-            APaint.Color = pen.Color.AColor;
+            APaint.Color = pen.Color.AColor();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             APaint.Flags = Flags;
             APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
@@ -152,7 +152,7 @@ namespace System.Drawing
         }
         public void DrawEllipse(Pen pen, int x, int y, int w, int h)
         {
-            APaint.Color = pen.Color.AColor;
+            APaint.Color = pen.Color.AColor();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             APaint.Flags = Flags;
             APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
@@ -164,7 +164,7 @@ namespace System.Drawing
         }
         public void FillRectangle(Brush brush, int x1, int y1, int w, int h)
         {
-            APaint.Color = brush.Color.AColor;
+            APaint.Color = brush.Color.AColor();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             APaint.Flags = Flags;
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
@@ -189,7 +189,7 @@ namespace System.Drawing
 
         public void FillEllipse(Brush brush, int x, int y, int w, int h)
         {
-            APaint.Color = brush.Color.AColor;
+            APaint.Color = brush.Color.AColor();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             APaint.Flags = Flags;
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
@@ -205,7 +205,7 @@ namespace System.Drawing
         }
         public void DrawString(string text, Font font, Brush brush, int x, int y)
         {
-            APaint.Color = brush.Color.AColor;
+            APaint.Color = brush.Color.AColor();
             APaint.TextSize = APixels(font.Size);
             APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
             //Android.Graphics.TypefaceStyle
@@ -220,7 +220,7 @@ namespace System.Drawing
 
         public void DrawString(string text, Font font, Brush brush, RectangleF rect)
         {
-            APaint.Color = brush.Color.AColor;
+            APaint.Color = brush.Color.AColor();
             APaint.TextSize = APixels(font.Size);
             APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
@@ -321,6 +321,7 @@ namespace System.Drawing
         Pixel,
     }
 
+#if OLDMFA
     public struct Point : IDisposable
     {
         public int X{get; set;}
@@ -430,6 +431,14 @@ namespace System.Drawing
         public static Color DarkGray = new Color(0x60,0x60,0x60);
         public static Color Empty = new Color(0,0,0);
     }
+#else
+
+    public static class ColorHelper{
+        public static Android.Graphics.Color AColor(this Color c){
+            return new Android.Graphics.Color(c.ToArgb());
+        }
+    }
+#endif
 
     public class MouseEventArgs
     {
@@ -470,8 +479,8 @@ namespace System.Drawing
         {
         }
 
-        public void Clear(){
-            ABitmap.EraseColor(Color.Transparent.Value);
+        public void Clear(Color color){
+            ABitmap.EraseColor(color.ToArgb());
         }
 
         public override int Width{
@@ -533,6 +542,7 @@ namespace System.Drawing
         }
     }
 
+#if OLDMFA
     public struct Size
     {
         public static Size Empty = new Size(0,0);
@@ -577,6 +587,7 @@ namespace System.Drawing
             this.Height = Height;
         }
     }
+#endif
 
     public enum FontStyle
     {
@@ -602,6 +613,7 @@ namespace System.Drawing
         }
     }
 
+#if OLDMFA
     public struct Rectangle
     {
         public int Left{get; set;}
@@ -647,10 +659,6 @@ namespace System.Drawing
             return this.Contains(r.Left, r.Top) || this.Contains(r.Right, r.Bottom) || r.Contains(this.Left, this.Top) || r.Contains(this.Right, this.Bottom);
         }
 
-        public Android.Graphics.Rect ToA()
-        {
-            return new Android.Graphics.Rect(Left, Top, Left+Width, Top+Height);
-        }
     }
 
     public struct RectangleF
@@ -686,11 +694,20 @@ namespace System.Drawing
             return this.Left <= p.X && this.Right >= p.X && this.Top <= p.Y && this.Bottom >= p.Y;
         }
 
-        public Android.Graphics.RectF ToA()
+    }
+#else
+    public static class RectHelpers{
+
+        public static Android.Graphics.Rect ToA(this Rectangle r)
         {
-            return new Android.Graphics.RectF(Left, Top, Left+Width, Top+Height);
+            return new Android.Graphics.Rect(r.Left, r.Top, r.Left+r.Width, r.Top+r.Height);
+        }
+
+        public static Android.Graphics.RectF ToA(this RectangleF r)
+        {
+            return new Android.Graphics.RectF(r.Left, r.Top, r.Left+r.Width, r.Top+r.Height);
         }
     }
-
+#endif
 }
 
