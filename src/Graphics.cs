@@ -33,9 +33,13 @@ namespace System.Drawing.Imaging
 
 namespace System.Drawing
 {
+
+    using System.Drawing.Imaging;
+
     public class Graphics : IDisposable
     {
         public Android.Graphics.Canvas ACanvas;
+        protected Bitmap SourceBitmap;
         Android.Graphics.Paint APaint = new Android.Graphics.Paint();
         public static int PointsDPI = 72;
         public static int DeviceDPI = 92;
@@ -46,6 +50,7 @@ namespace System.Drawing
         public Graphics (Image image)
         {
             ACanvas = new Android.Graphics.Canvas((image as Bitmap).ABitmap);
+            SourceBitmap = image as Bitmap;
             Init ();
         }
 
