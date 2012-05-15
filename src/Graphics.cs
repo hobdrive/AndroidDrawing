@@ -276,8 +276,10 @@ namespace System.Drawing
 
         public void Clear(Color fill)
         {
-            ACanvas.DrawARGB(fill.A, fill.R, fill.G, fill.B);
-            //FillRectangle(new Brush(fill), 0,0, ACanvas.Width, ACanvas.Height);
+            if (SourceBitmap != null)
+                SourceBitmap.Clear(fill);
+            else
+                ACanvas.DrawARGB(fill.A, fill.R, fill.G, fill.B);
         }
 
         public int DpiX{
