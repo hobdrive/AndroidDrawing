@@ -166,6 +166,22 @@ namespace System.Drawing
             APaint.StrokeWidth = LineWidth;
             ACanvas.DrawRect(x1, y1, x1+w, y1+h, APaint);
         }
+
+        public void FillPolygon(Brush brush, Point[] points)
+        {
+            APaint.Color = brush.Color.AColor();
+            APaint.Flags = (Android.Graphics.PaintFlags)0;
+            APaint.Flags = Flags;
+            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
+            APaint.StrokeWidth = LineWidth;
+            var p = new Android.Graphics.Path();
+            p.MoveTo(points[0].X, points[0].Y);
+            foreach(var pt in points)
+                p.LineTo(pt.X, pt.Y);
+            ACanvas.DrawPath(p, APaint);
+            p.Dispose();
+        }
+
         public void FillEllipse(Brush brush, int x, int y, int w, int h)
         {
             APaint.Color = brush.Color.AColor;
