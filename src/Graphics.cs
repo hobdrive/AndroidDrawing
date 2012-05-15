@@ -1,6 +1,35 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.IO;
+
+namespace System.Drawing.Imaging
+{
+    public class ImageAttributes
+    {
+        ColorMatrix cm;
+        public void SetColorMatrix(ColorMatrix cm)
+        {
+            this.cm = cm;
+        }
+        public ColorMatrix GetColorMatrix()
+        {
+            return cm;
+        }
+    }
+    public class ColorMatrix
+    {
+        float[][] matrix;
+        public float[][] Matrix{
+            get{ return matrix; }
+        }
+        public ColorMatrix(float[][] matrix)
+        {
+            this.matrix = matrix;
+        }
+    }
+
+}
 
 namespace System.Drawing
 {
@@ -71,6 +100,28 @@ namespace System.Drawing
             var sa = source.ToA();
             var da = new Android.Graphics.Rect(x,y, x+image.Width, y+image.Height);
             ACanvas.DrawBitmap((image as Bitmap).ABitmap, sa, da, APaint);
+            da.Dispose();
+            sa.Dispose();
+        }
+
+        public void DrawImage(Image image, Rectangle to, int fromx, int fromy, int fromw, int fromh, GraphicsUnit gu, ImageAttributes ia)
+        {
+            APaint.Flags = (Android.Graphics.PaintFlags)0;
+            var sa = new Android.Graphics.Rect(fromx, fromy, fromx+fromw, fromy+fromh);
+            var da = to.ToA();
+
+            Android.Graphics.Paint p = null;
+            Android.Graphics.ColorMatrixColorFilter cmf = null;
+            if (ia != null && ia.GetColorMatrix() != null){
+                p = new Android.Graphics.Paint(APaint);
+                var values = ia.GetColorMatrix().Matrix;
+                float[] v2 = values[0].Concat(values[1]).Concat(values[2]).Concat(values[3]).ToArray();
+                cmf = new Android.Graphics.ColorMatrixColorFilter(v2);
+                p.SetColorFilter(cmf);
+            }
+            ACanvas.DrawBitmap((image as Bitmap).ABitmap, sa, da, p == null ? APaint : p);
+            if (p != null) p.Dispose();
+            if (cmf != null) cmf.Dispose();
             da.Dispose();
             sa.Dispose();
         }
