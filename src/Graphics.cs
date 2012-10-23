@@ -309,6 +309,17 @@ namespace System.Drawing
             }
         }
 
+        public void TranslateTransform(int x, int y)
+        {
+            ACanvas.Translate((float)x, (float)y);
+        }
+
+        public void ResetTransform()
+        {
+            using(var m = new Android.Graphics.Matrix())
+                ACanvas.Matrix = m;
+        }
+
         public void Dispose()
         {
             APaint.Dispose();
