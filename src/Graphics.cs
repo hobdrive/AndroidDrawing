@@ -236,11 +236,21 @@ namespace System.Drawing
             {
                 var tpart = text.Substring(coffset);
                 var tlen = APaint.BreakText(tpart, true, rect.Width, null);
+                var extralen = 0;
                 int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
-                if (spaceoffset > 0 && tlen < text.Length)
+                if (spaceoffset > 0 && coffset+tlen < text.Length)
+                {
                     tlen = spaceoffset;
+                    extralen = 1;
+                }
+                int croffset = tpart.IndexOf('\n');
+                if (croffset > 0 && croffset < tlen)
+                {
+                    tlen = croffset;
+                    extralen = 1;
+                }
                 ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
-                coffset += tlen;
+                coffset += tlen+extralen;
                 cline++;
             }
 
@@ -249,28 +259,40 @@ namespace System.Drawing
 
         public Size MeasureStringWidth(string text, Font font, int width)
         {
+            //APaint.Color = brush.Color.AColor();
             APaint.TextSize = APixels(font.Size);
             APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
             APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
             APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
-
+            
             var fm = APaint.GetFontMetricsInt();
             var height = -fm.Top;
             var cline = 0;
             var lineheight = -fm.Top + fm.Bottom;
-
+            
             var coffset = 0;
             while(coffset < text.Length)
             {
                 var tpart = text.Substring(coffset);
                 var tlen = APaint.BreakText(tpart, true, width, null);
+                var extralen = 0;
                 int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
-                if (spaceoffset > 0 && tlen < text.Length)
+                if (spaceoffset > 0 && coffset+tlen < text.Length)
+                {
                     tlen = spaceoffset;
+                    extralen = 1;
+                }
+                int croffset = tpart.IndexOf('\n');
+                if (croffset > 0 && croffset < tlen)
+                {
+                    tlen = croffset;
+                    extralen = 1;
+                }
                 //ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
-                coffset += tlen;
+                coffset += tlen+extralen;
                 cline++;
             }
+            
             fm.Dispose();
             return new Size(width, (int)(lineheight*cline));
         }
