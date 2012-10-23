@@ -43,6 +43,9 @@ namespace System.Windows.Forms
                         cdt.Enabled = false;
                     };
                     cdt.Enabled = true;
+                }else{
+                    if (cdt != null)
+                        cdt.Enabled = false;
                 }
 
             }
