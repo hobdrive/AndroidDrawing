@@ -3,6 +3,8 @@ using System.Linq;
 using System.Reflection;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using Android.Util;
 
 namespace System.Drawing
 {
@@ -10,7 +12,23 @@ namespace System.Drawing
     public class Graphics : IDisposable
     {
 
+        public const int BSIZE = 7*1024;
+        public const int BTHRESHOLD = BSIZE - 200;
+
+        private const byte OP_END = 0;
+        private const byte OP_DRAWSTRING = 1;
+        private const byte OP_DRAWRECT = 2;
+        private const byte OP_DRAWLINE = 3;
+        private const byte OP_DRAWELLIPSE = 4;
+        private const byte OP_FILLRECT = 5;
+        private const byte OP_FILLPOLY = 6;
+        private const byte OP_FILLELLIPSE = 7;
+        private const byte OP_DRAWSTRING2 = 8;
+
         IntPtr jHost;
+        IntPtr jBufferAddress;
+        IntPtr jFlushMethod;
+        int jBufferPosition = 0;
 
         public Android.Graphics.Canvas ACanvas;
         protected Bitmap SourceBitmap;
@@ -40,17 +58,71 @@ namespace System.Drawing
 
             var devclass = Android.Runtime.JNIEnv.FindClass("hobdrive/android/FGHost");
             var devconstr = Android.Runtime.JNIEnv.GetMethodID(devclass, "<init>", "(Landroid/graphics/Canvas;)V");
-            this.jHost = Android.Runtime.JNIEnv.NewObject(devclass, devconstr, new Android.Runtime.JValue[]{ new Android.Runtime.JValue(ACanvas) });
+            var jLocalHost = Android.Runtime.JNIEnv.NewObject(devclass, devconstr, new Android.Runtime.JValue[]{ new Android.Runtime.JValue(ACanvas) });
 
-            /*
-             * var devmethod = Android.Runtime.JNIEnv.GetMethodID(devclass, "createRfcommSocket", "(I)Landroid/bluetooth/BluetoothSocket;");
-            var res = Android.Runtime.JNIEnv.CallObjectMethod(dev.Handle, devmethod,
-                                                              new Android.Runtime.JValue[]{ new Android.Runtime.JValue((int)1) });
-                                                              */
+            this.jHost = Android.Runtime.JNIEnv.NewGlobalRef(jLocalHost);
+            Android.Runtime.JNIEnv.DeleteLocalRef(jLocalHost);
+
+            jFlushMethod = Android.Runtime.JNIEnv.GetMethodID(devclass, "flush", "()V");
+
+            var jGetBufferMethod = Android.Runtime.JNIEnv.GetMethodID(devclass, "getBuffer", "()Ljava/nio/ByteBuffer;");
+            var jBuffer = Android.Runtime.JNIEnv.CallObjectMethod(this.jHost, jGetBufferMethod, new Android.Runtime.JValue[]{});
+            jBufferAddress = Android.Runtime.JNIEnv.GetDirectBufferAddress(jBuffer);
+            Android.Runtime.JNIEnv.DeleteLocalRef(jBuffer);
+
+            Android.Runtime.JNIEnv.DeleteGlobalRef(devclass);
 
             LineWidth = 1;//Math.Max (1, (int)((float)DeviceDPI / (float)PointsDPI));
             Flags = Android.Graphics.PaintFlags.AntiAlias;
         }
+
+        public void Flush()
+        {
+            if (jBufferPosition == 0)
+                return;
+            // OP END
+            Write(OP_END);
+            Write(OP_END);
+            Write(OP_END);
+            Write(OP_END);
+            //Android.Util.Log.Error("FastGraphics", "Flush " + jHost.ToString("X") + " size="+ jBufferPosition);
+            Android.Runtime.JNIEnv.CallVoidMethod(this.jHost, jFlushMethod);
+            jBufferPosition = 0;
+        }
+
+        void WriteByte(byte b)
+        {
+            if (jBufferPosition > BTHRESHOLD)
+            {
+                Android.Util.Log.Error("FastGraphics", "BTHRESHOLD " + jHost.ToString("X"));
+                Flush ();
+            }
+            Marshal.WriteByte(jBufferAddress, jBufferPosition++, b);
+        }
+
+        void WriteString(string text)
+        {
+            Marshal.WriteInt32(jBufferAddress, jBufferPosition, text.Length);
+            jBufferPosition += 4;
+            for(int i = 0; i < text.Length; i++)
+            {
+                // Put strings in big endian. TODO: check if this always true for UTF-16 in java
+                Marshal.WriteInt16(jBufferAddress, jBufferPosition, (byte) ((((int)text[i])&0xFF00) >> 8));
+                jBufferPosition ++;
+                Marshal.WriteByte(jBufferAddress, jBufferPosition, (byte) (((int)text[i])&0xFF));
+                jBufferPosition ++;
+            }
+        }
+
+        void Write(int value)
+        {
+            Marshal.WriteInt32(jBufferAddress, jBufferPosition, value);
+            jBufferPosition += 4;
+        }
+
+
+
+
 
         public static Graphics FromImage(Image image)
         {
@@ -71,6 +143,7 @@ namespace System.Drawing
 
         public void DrawImage(Image image, Rectangle target, Rectangle source, GraphicsUnit gu)
         {
+            Flush();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             var sa = source.ToA();
             var ta = target.ToA();
@@ -81,12 +154,14 @@ namespace System.Drawing
 
         public void DrawImage(Image image, int x, int y)
         {
+            Flush();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             ACanvas.DrawBitmap((image as Bitmap).ABitmap, x, y, APaint);
         }
 
         public void DrawImage(Image image, int x, int y, Rectangle source, GraphicsUnit gu)
         {
+            Flush();
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             var sa = source.ToA();
             var da = new Android.Graphics.Rect(x,y, x+source.Width, y+source.Height);
@@ -97,6 +172,8 @@ namespace System.Drawing
 
         public void DrawImage(Image image, Rectangle to, int fromx, int fromy, int fromw, int fromh, GraphicsUnit gu, ImageAttributes ia)
         {
+            Flush();
+
             APaint.Flags = (Android.Graphics.PaintFlags)0;
             var sa = new Android.Graphics.Rect(fromx, fromy, fromx+fromw, fromy+fromh);
             var da = to.ToA();
@@ -119,74 +196,64 @@ namespace System.Drawing
 
         public void DrawLine(Pen pen, int x1, int y1, int x2, int y2)
         {
-            APaint.Color = pen.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
-            APaint.StrokeWidth = LineWidth;
-            ACanvas.DrawLine(x1, y1, x2, y2, APaint);
+            WriteByte(OP_DRAWLINE);
+            Write(pen.Color.ToArgb());
+            Write(x1);
+            Write(y1);
+            Write(x2);
+            Write(y2);
         }
 
         public void DrawRectangle(Pen pen, int x1, int y1, int w, int h)
         {
-            /*
-            APaint.Color = pen.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
-            APaint.StrokeWidth = LineWidth;
-            ACanvas.DrawRect(x1, y1, x1+w, y1+h, APaint);
-            */
+            WriteByte(OP_DRAWRECT);
+            Write(pen.Color.ToArgb());
+            Write(x1);
+            Write(y1);
+            Write(w);
+            Write(h);
         }
+
         public void DrawEllipse(Pen pen, int x, int y, int w, int h)
         {
-            APaint.Color = pen.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Stroke);
-            APaint.StrokeWidth = LineWidth;
-            using (var r = new Android.Graphics.RectF(x, y, x+w, y+h))
-            {
-                ACanvas.DrawOval(r, APaint);
-            }
+            WriteByte(OP_DRAWELLIPSE);
+            Write(pen.Color.ToArgb());
+            Write(x);
+            Write(y);
+            Write(w);
+            Write(h);
         }
+
         public void FillRectangle(Brush brush, int x1, int y1, int w, int h)
         {
-            APaint.Color = brush.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
-            APaint.StrokeWidth = LineWidth;
-            ACanvas.DrawRect(x1, y1, x1+w, y1+h, APaint);
+            WriteByte(OP_FILLRECT);
+            Write(brush.Color.ToArgb());
+            Write(x1);
+            Write(y1);
+            Write(w);
+            Write(h);
         }
 
         public void FillPolygon(Brush brush, Point[] points)
         {
-            /*
-            APaint.Color = brush.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
-            APaint.StrokeWidth = LineWidth;
-            var p = new Android.Graphics.Path();
-            p.MoveTo(points[0].X, points[0].Y);
-            foreach(var pt in points)
-                p.LineTo(pt.X, pt.Y);
-            ACanvas.DrawPath(p, APaint);
-            p.Dispose();
-            */
+            WriteByte(OP_FILLPOLY);
+            Write(brush.Color.ToArgb());
+            Write(points.Length);
+            foreach(var p in points)
+            {
+                Write (p.X);
+                Write (p.Y);
+            }
         }
 
         public void FillEllipse(Brush brush, int x, int y, int w, int h)
         {
-            APaint.Color = brush.Color.AColor();
-            APaint.Flags = (Android.Graphics.PaintFlags)0;
-            APaint.Flags = Flags;
-            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
-            using(var r = new Android.Graphics.RectF(x, y, x+w, y+h))
-            {
-                ACanvas.DrawOval(r, APaint);
-            }
+            WriteByte(OP_FILLELLIPSE);
+            Write(brush.Color.ToArgb());
+            Write(x);
+            Write(y);
+            Write(w);
+            Write(h);
         }
 
         public void DrawString(string text, Font font, Brush brush, float x, float y)
@@ -195,56 +262,24 @@ namespace System.Drawing
         }
         public void DrawString(string text, Font font, Brush brush, int x, int y)
         {
-            APaint.Color = brush.Color.AColor();
-            APaint.TextSize = APixels(font.Size);
-            APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
-            //Android.Graphics.TypefaceStyle
-            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
-            APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
-            using(var fm = APaint.GetFontMetricsInt())
-            {
-                var height = -fm.Top;
-                ACanvas.DrawText(text, x, y+height, APaint);
-            }
+            WriteByte(OP_DRAWSTRING);
+            WriteString(text);
+            Write(x);
+            Write(y);
+            Write(brush.Color.ToArgb());
+            Write(APixels(font.Size));
         }
 
         public void DrawString(string text, Font font, Brush brush, RectangleF rect)
         {
-            APaint.Color = brush.Color.AColor();
-            APaint.TextSize = APixels(font.Size);
-            APaint.SetTypeface(Android.Graphics.Typeface.Default);//TODO
-            APaint.SetStyle(Android.Graphics.Paint.Style.Fill);
-            APaint.Flags = Android.Graphics.PaintFlags.AntiAlias;
-
-            var fm = APaint.GetFontMetricsInt();
-            var height = -fm.Top;
-            var cline = 0;
-            var lineheight = -fm.Top + fm.Bottom;
-
-            var coffset = 0;
-            while(coffset < text.Length)
-            {
-                var tpart = text.Substring(coffset);
-                var tlen = APaint.BreakText(tpart, true, rect.Width, null);
-                var extralen = 0;
-                int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
-                if (spaceoffset > 0 && coffset+tlen < text.Length)
-                {
-                    tlen = spaceoffset;
-                    extralen = 1;
-                }
-                int croffset = tpart.IndexOf('\n');
-                if (croffset > 0 && croffset < tlen)
-                {
-                    tlen = croffset;
-                    extralen = 1;
-                }
-                ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
-                coffset += tlen+extralen;
-                cline++;
-            }
-
-            fm.Dispose();
+            WriteByte(OP_DRAWSTRING2);
+            WriteString(text);
+            Write((int)rect.X);
+            Write((int)rect.Y);
+            Write((int)rect.Width);
+            Write((int)rect.Height);
+            Write(brush.Color.ToArgb());
+            Write(APixels(font.Size));
         }
 
         public Size MeasureStringWidth(string text, Font font, int width)
@@ -309,6 +344,7 @@ namespace System.Drawing
 
         public void Clear(Color fill)
         {
+            jBufferPosition = 0;
             if (SourceBitmap != null)
                 SourceBitmap.Clear(fill);
             else
@@ -323,11 +359,13 @@ namespace System.Drawing
 
         public void TranslateTransform(int x, int y)
         {
+            Flush();
             ACanvas.Translate((float)x, (float)y);
         }
 
         public void ResetTransform()
         {
+            Flush();
             using(var m = new Android.Graphics.Matrix())
                 ACanvas.Matrix = m;
         }
@@ -336,6 +374,7 @@ namespace System.Drawing
         {
             APaint.Dispose();
             ACanvas.Dispose();
+            Android.Runtime.JNIEnv.DeleteGlobalRef(jHost);
         }
     }
 
