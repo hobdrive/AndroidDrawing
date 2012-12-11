@@ -38,6 +38,11 @@ namespace System.Drawing
             Flags = Android.Graphics.PaintFlags.AntiAlias;
         }
 
+        public void Flush()
+        {
+            // Doesn nothing
+        }
+
         public static Graphics FromImage(Image image)
         {
             return new Graphics(image);
@@ -216,7 +221,7 @@ namespace System.Drawing
                     extralen = 1;
                 }
                 int croffset = tpart.IndexOf('\n');
-                if (croffset > 0 && croffset < tlen)
+                if (croffset >= 0 && croffset < tlen)
                 {
                     tlen = croffset;
                     extralen = 1;
@@ -255,7 +260,7 @@ namespace System.Drawing
                     extralen = 1;
                 }
                 int croffset = tpart.IndexOf('\n');
-                if (croffset > 0 && croffset < tlen)
+                if (croffset >= 0 && croffset < tlen)
                 {
                     tlen = croffset;
                     extralen = 1;

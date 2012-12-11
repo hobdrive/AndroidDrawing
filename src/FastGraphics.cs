@@ -301,14 +301,16 @@ namespace System.Drawing
                 var tpart = text.Substring(coffset);
                 var tlen = APaint.BreakText(tpart, true, width, null);
                 var extralen = 0;
-                int spaceoffset = tpart.LastIndexOf(' ', tlen-1, tlen/2);
+                int spaceoffset = tpart.Substring(tlen/2, tlen - tlen/2).LastIndexOf(' ');
+                if (spaceoffset <= 0)
+                    spaceoffset = tpart.Substring(tlen/2, tlen - tlen/2).LastIndexOf('.');
                 if (spaceoffset > 0 && coffset+tlen < text.Length)
                 {
-                    tlen = spaceoffset;
+                    tlen = spaceoffset + tlen/2;
                     extralen = 1;
                 }
                 int croffset = tpart.IndexOf('\n');
-                if (croffset > 0 && croffset < tlen)
+                if (croffset >= 0 && croffset < tlen)
                 {
                     tlen = croffset;
                     extralen = 1;

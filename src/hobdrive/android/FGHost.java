@@ -177,19 +177,21 @@ public class FGHost
                     String tpart = text.substring(coffset);
                     int tlen = APaint.breakText(tpart, true, w, null);
                     int extralen = 0;
-                    int spaceoffset = tpart.substring(0, tlen-1).lastIndexOf(" ", tlen/2);
+                    int spaceoffset = tpart.substring(tlen/2, tlen).lastIndexOf(" ");
+                    if (spaceoffset <= 0)
+                        spaceoffset = tpart.substring(tlen/2, tlen).lastIndexOf(".");
                     if (spaceoffset > 0 && coffset+tlen < text.length())
                     {
-                        tlen = spaceoffset;
+                        tlen = spaceoffset+tlen/2;
                         extralen = 1;
                     }
                     int croffset = tpart.indexOf("\n");
-                    if (croffset > 0 && croffset < tlen)
+                    if (croffset >= 0 && croffset < tlen)
                     {
                         tlen = croffset;
                         extralen = 1;
                     }
-                    ACanvas.drawText(tpart.substring(0,tlen), x, y + h + lineheight*cline, APaint);
+                    ACanvas.drawText(tpart.substring(0,tlen), x, y + height + lineheight*cline, APaint);
                     coffset += tlen+extralen;
                     cline++;
                 }

@@ -56,8 +56,9 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Graphics.cs" />
+    <Compile Include="src\FastGraphics.cs" />
     <Compile Include="src\MiscForms.cs" />
     <Compile Include="src\Stubs.cs" />
+    <Compile Include="src\GraphicsHelpers.cs" />
   </ItemGroup>
 </Project>
