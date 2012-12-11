@@ -55,6 +55,9 @@ namespace System.Windows.Forms
 
         public void Dispose()
         {
+            if (cdt != null)
+                cdt.Enabled = false;
+            cdt = null;
         }
     }
 }
