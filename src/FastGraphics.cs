@@ -24,6 +24,7 @@ namespace System.Drawing
         private const byte OP_FILLPOLY = 6;
         private const byte OP_FILLELLIPSE = 7;
         private const byte OP_DRAWSTRING2 = 8;
+        private const byte OP_FLAGS = 9;
 
         IntPtr jHost;
         IntPtr jBufferAddress;
@@ -38,6 +39,8 @@ namespace System.Drawing
         public static int DeviceDPI = 92;
 
         public int LineWidth = 1;
+
+        public static Android.Graphics.PaintFlags FlagsDefault = 0;
         public Android.Graphics.PaintFlags Flags = 0;
 
         public Graphics (Image image)
@@ -73,7 +76,9 @@ namespace System.Drawing
             Android.Runtime.JNIEnv.DeleteGlobalRef(devclass);
 
             LineWidth = 1;//Math.Max (1, (int)((float)DeviceDPI / (float)PointsDPI));
-            Flags = Android.Graphics.PaintFlags.AntiAlias;
+            Flags = FlagsDefault;
+
+            SetFlags(Flags);
         }
 
         public void Flush()
@@ -194,10 +199,17 @@ namespace System.Drawing
             sa.Dispose();
         }
 
+        public void SetFlags(Android.Graphics.PaintFlags flags)
+        {
+            WriteByte(OP_FLAGS);
+            Write((int)flags);
+        }
+
         public void DrawLine(Pen pen, int x1, int y1, int x2, int y2)
         {
             WriteByte(OP_DRAWLINE);
             Write(pen.Color.ToArgb());
+            Write(pen.Width);
             Write(x1);
             Write(y1);
             Write(x2);

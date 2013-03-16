@@ -19,6 +19,7 @@ public class FGHost
 	private static final byte OP_FILLPOLY = 6;
 	private static final byte OP_FILLELLIPSE = 7;
 	private static final byte OP_DRAWSTRING2 = 8;
+    private static final byte OP_SETFLAGS = 9;
 	
     Canvas ACanvas;
     ByteBuffer b;
@@ -92,13 +93,13 @@ public class FGHost
                 break;
             case OP_DRAWLINE:
                 APaint.setColor(b.getInt());
+                APaint.setStrokeWidth(b.getInt());
                 x1 = b.getInt();
                 y1 = b.getInt();
                 x2 = b.getInt();
                 y2 = b.getInt();
                 APaint.setStyle(android.graphics.Paint.Style.STROKE);
                 APaint.setFlags(0);
-                APaint.setStrokeWidth(LineWidth);
                 ACanvas.drawLine(x1, y1, x2, y2, APaint);
                 break;
             case OP_DRAWELLIPSE:
@@ -195,6 +196,10 @@ public class FGHost
                     coffset += tlen+extralen;
                     cline++;
                 }
+                break;
+            case OP_SETFLAGS:
+                Flags = b.getInt();
+                APaint.setFlags(Flags);
                 break;
             default:
     			android.util.Log.e("HOBD_FGHost", "Unknown command: "+op);
