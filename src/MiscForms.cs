@@ -40,7 +40,6 @@ namespace System.Windows.Forms
                     cdt = new System.Timers.Timer(Interval);
                     cdt.Elapsed += (sender, e) => {
                         Tick(this, e);
-                        cdt.Enabled = false;
                     };
                     cdt.Enabled = true;
                 }else{
