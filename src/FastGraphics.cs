@@ -359,6 +359,7 @@ namespace System.Drawing
         public void Clear(Color fill)
         {
             jBufferPosition = 0;
+            Flush();
             if (SourceBitmap != null)
                 SourceBitmap.Clear(fill);
             else
