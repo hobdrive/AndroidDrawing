@@ -321,6 +321,7 @@ namespace System.Drawing
     public class Font : IDisposable
     {
         public string Face;
+        public string Name;
         public int Size;
         public FontStyle Style;
 
@@ -329,6 +330,7 @@ namespace System.Drawing
             Size = size;
             Face = face;
             Style = style;
+            Name = Face;
         }
         public void Dispose()
         {
