@@ -196,9 +196,15 @@ namespace System.Drawing
         }
         public Bitmap(MemoryStream ms)
         {
+            ABitmap = Android.Graphics.BitmapFactory.DecodeStream(ms);
         }
         public Bitmap(Stream rs)
         {
+            ABitmap = Android.Graphics.BitmapFactory.DecodeStream(rs);
+        }
+        public Bitmap(string filename)
+        {
+            ABitmap = Android.Graphics.BitmapFactory.DecodeFile (filename);
         }
 
         public void Clear(Color color){
