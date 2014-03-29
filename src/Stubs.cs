@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace System
 {
+#if OLDMFA
     namespace ComponentModel
     {
     public class BindingList<T> : List<T>
@@ -12,6 +13,7 @@ namespace System
         }
     }
     }
+#endif
 
     namespace Windows.Forms
     {
