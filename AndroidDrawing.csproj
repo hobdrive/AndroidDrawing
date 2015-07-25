@@ -12,7 +12,7 @@
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <AssemblyName>AndroidDrawing</AssemblyName>
-    <TargetFrameworkVersion>v2.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.3</TargetFrameworkVersion>
     <MonoAndroidVersion>v2.1</MonoAndroidVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Env)' == 'alone' ">
