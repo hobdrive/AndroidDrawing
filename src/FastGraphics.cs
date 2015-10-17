@@ -378,6 +378,38 @@ namespace System.Drawing
             ACanvas.Translate((float)x, (float)y);
         }
 
+        public void RotateTransform(float angle)
+        {
+            Flush();
+            ACanvas.Rotate(angle);
+        }
+
+        public void ScaleTransform(float sx, float sy)
+        {
+            Flush();
+            ACanvas.Scale(sx, sy);
+        }
+
+        public Android.Graphics.Matrix Transform{
+            get{
+                return ACanvas.Matrix;
+            }
+            set{
+                ACanvas.Matrix = value;
+            }
+        }
+
+        float ctransparency = 0;
+
+        public float Transparency{
+            get{
+                return ctransparency;
+            }
+            set{
+                ctransparency = value;
+            }
+        }
+
         public void ResetTransform()
         {
             Flush();
