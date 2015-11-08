@@ -395,6 +395,7 @@ namespace System.Drawing
                 return ACanvas.Matrix;
             }
             set{
+                Flush();
                 ACanvas.Matrix = value;
             }
         }
