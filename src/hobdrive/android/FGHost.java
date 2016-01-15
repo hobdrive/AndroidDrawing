@@ -8,7 +8,7 @@ import java.nio.*;
 
 public class FGHost
 {
-	public final static int BSIZE = 7*1024;
+	public final static int BSIZE = 20*1024;
 
     private static final byte OP_END = 0;
 	private static final byte OP_DRAWSTRING = 1;
@@ -40,10 +40,15 @@ public class FGHost
     }
     
     byte[] sbuf = new byte[1024];
+    int sbuf_len = 1024;
     
     String getString()
     {
     	int len = b.getInt() * 2;
+        if (sbuf_len < len)
+        {
+            sbuf = new byte[len];
+        }
     	b.get(sbuf, 0, len);
     	try {
 			return new String(sbuf, 0, len, "UTF-16");
