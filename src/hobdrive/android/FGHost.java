@@ -20,6 +20,7 @@ public class FGHost
 	private static final byte OP_FILLELLIPSE = 7;
 	private static final byte OP_DRAWSTRING2 = 8;
     private static final byte OP_SETFLAGS = 9;
+    private static final byte OP_DRAWARC = 10;
 	
     Canvas ACanvas;
     ByteBuffer b;
@@ -61,6 +62,8 @@ public class FGHost
     public void flush()
     {
     	int x, y, x1, y1, w, h, x2, y2;
+        float sa, swa;
+        RectF r;
     	
         //android.util.Log.e("HOBD_FGHost", "flush");
     	b.rewind();
@@ -116,9 +119,23 @@ public class FGHost
                 APaint.setFlags(Flags);
                 APaint.setStyle(android.graphics.Paint.Style.STROKE);
                 APaint.setStrokeWidth(LineWidth);
-                RectF r = new android.graphics.RectF(x, y, x+w, y+h);
+                r = new android.graphics.RectF(x, y, x+w, y+h);
                 ACanvas.drawOval(r, APaint);
                 break;
+            case OP_DRAWARC:
+                APaint.setColor(b.getInt());
+                x = b.getInt();
+                y = b.getInt();
+                w = b.getInt();
+                h = b.getInt();
+                sa = (float)b.getInt() / 1000 * 180 / (float)Math.PI;
+                swa = (float)b.getInt() / 1000 * 180 / (float)Math.PI;
+                APaint.setFlags(Flags);
+                APaint.setStyle(android.graphics.Paint.Style.STROKE);
+                APaint.setStrokeWidth(LineWidth);
+                r = new android.graphics.RectF(x, y, x+w, y+h);
+                ACanvas.drawArc(r, sa, swa, false, APaint);
+                break;                
             case OP_FILLRECT:
                 APaint.setColor(b.getInt());
                 x1 = b.getInt();

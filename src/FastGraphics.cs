@@ -25,6 +25,7 @@ namespace System.Drawing
         private const byte OP_FILLELLIPSE = 7;
         private const byte OP_DRAWSTRING2 = 8;
         private const byte OP_FLAGS = 9;
+        private const byte OP_DRAWARC = 10;
 
         IntPtr jHost;
         IntPtr jBufferAddress;
@@ -124,10 +125,6 @@ namespace System.Drawing
             Marshal.WriteInt32(jBufferAddress, jBufferPosition, value);
             jBufferPosition += 4;
         }
-
-
-
-
 
         public static Graphics FromImage(Image image)
         {
@@ -234,6 +231,18 @@ namespace System.Drawing
             Write(y);
             Write(w);
             Write(h);
+        }
+
+        public void DrawArc(Pen pen, int x, int y, int w, int h, float sw, float swa)
+        {
+            WriteByte(OP_DRAWARC);
+            Write(pen.Color.ToArgb());
+            Write(x);
+            Write(y);
+            Write(w);
+            Write(h);
+            Write((int)(sw*1000));
+            Write((int)(swa*1000));
         }
 
         public void FillRectangle(Brush brush, int x1, int y1, int w, int h)
