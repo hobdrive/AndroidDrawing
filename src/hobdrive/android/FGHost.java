@@ -128,8 +128,8 @@ public class FGHost
                 y = b.getInt();
                 w = b.getInt();
                 h = b.getInt();
-                sa = (float)b.getInt() / 1000 * 180 / (float)Math.PI;
-                swa = (float)b.getInt() / 1000 * 180 / (float)Math.PI;
+                sa = (float)b.getInt() / 1000;
+                swa = (float)b.getInt() / 1000;
                 APaint.setFlags(Flags);
                 APaint.setStyle(android.graphics.Paint.Style.STROKE);
                 APaint.setStrokeWidth(LineWidth);
