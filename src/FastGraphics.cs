@@ -12,7 +12,7 @@ namespace System.Drawing
     public class Graphics : IDisposable
     {
 
-        public const int BSIZE = 7*1024;
+        public const int BSIZE = 20*1024;
         public const int BTHRESHOLD = BSIZE - 200;
 
         private const byte OP_END = 0;
