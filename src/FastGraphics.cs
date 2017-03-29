@@ -315,6 +315,9 @@ namespace System.Drawing
             var height = -fm.Top;
             var cline = 0;
             var lineheight = -fm.Top + fm.Bottom;
+
+            if (width == 0)
+                return Size.Empty;
             
             var coffset = 0;
             while(coffset < text.Length)
