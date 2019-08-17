@@ -1,0 +1,4 @@
+m4inc(src/FastGraphics.cs)
+m4inc(src/MiscForms.cs)
+m4inc(src/Stubs.cs)
+m4inc(src/GraphicsHelpers.cs)
