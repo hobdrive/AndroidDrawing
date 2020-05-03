@@ -340,6 +340,10 @@ namespace System.Drawing
                     extralen = 1;
                 }
                 //ACanvas.DrawText(tpart.Substring(0,tlen), (int)rect.X, (int)rect.Y + height + lineheight*cline, APaint);
+                if (tlen + extralen == 0)
+                {
+                    return Size.Empty;
+                }
                 coffset += tlen+extralen;
                 cline++;
             }
