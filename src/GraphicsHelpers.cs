@@ -197,10 +197,14 @@ namespace System.Drawing
         public Bitmap(MemoryStream ms)
         {
             ABitmap = Android.Graphics.BitmapFactory.DecodeStream(ms);
+            if (ABitmap == null)
+                throw new Exception("Android DecodeStream failed with null");
         }
         public Bitmap(Stream rs)
         {
             ABitmap = Android.Graphics.BitmapFactory.DecodeStream(rs);
+            if (ABitmap == null)
+                throw new Exception("Android DecodeStream failed with null");
         }
         public Bitmap(string filename)
         {
