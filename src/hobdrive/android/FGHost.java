@@ -2,10 +2,12 @@ package hobdrive.android;
 
 import android.graphics.*;
 import android.graphics.Paint.FontMetricsInt;
+import androidx.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.*;
 
+@Keep
 public class FGHost
 {
 	public final static int BSIZE = 20*1024;
