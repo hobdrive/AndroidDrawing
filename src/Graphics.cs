@@ -3,9 +3,10 @@ using System.Linq;
 using System.Reflection;
 using System.IO;
 
+#if SLOW_GRAPHICS
+
 namespace System.Drawing
 {
-
     using System.Drawing.Imaging;
 
     public class Graphics : IDisposable
@@ -328,3 +329,4 @@ namespace System.Drawing
 
 }
 
+#endif
