@@ -1,12 +1,16 @@
  AndroidDrawing
 ==============
-  This is a draft porting layer between System.Drawing.Graphics and Android.Drawing.Canvas classes.
+  This is a porting layer between System.Drawing.Graphics and Android.Drawing.Canvas classes.
 
-  Its primary use is in MonoAndroid framework.
+  Its primary use is in MAUI/Xamarin Android framework.
 
   This layer allows to share the same primitive drawing code between .net Windows Mobile/Windows Phone platforms and Android platform.
 
   AndroidDrawing also contains a trivial implementation of System.Graphics Pen, Color, Brush, Size, SizeF, Rectangle.
+
+  FastGraphics implementation (which is default) uses a simple operation batching method.
+  This method increases performance if many simple draw operations are performed on Graphics canvas one by one.
+  Main gain comes from eliminating too many JNI-Java switches.
 
  Usage
 ==============
@@ -29,13 +33,13 @@
  Links
 ==============
 
-  Issues: http://github.com/cail/AndroidDrawing/issues
+  Issues: http://github.com/hobdrive/AndroidDrawing/issues
 
-  Fork me on github: http://github.com/cail/AndroidDrawing
+  Fork me on github: http://github.com/hobdrive/AndroidDrawing
 
  Author
 ==============
-  http://github.com/cail
+  http://github.com/hobdrive
 
  License
 ==============
