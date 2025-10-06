@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net9.0-android</TargetFrameworks>
+        <RootNamespace>androiddrawing</RootNamespace>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+        <DefineConstants>$(DefineConstants);__MAUI__</DefineConstants>
+        <DefineConstants>$(DefineConstants);xxxxxxSLOW_GRAPHICS</DefineConstants>
+        <NoWarn>$(NoWarn);CS8625;CS8618;CS8602;CS8603;CS8600;CS8604;CS8601;CS8618;CS8622</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AndroidJavaSource Include="src\hobdrive\android\FGHost.java" />
+    </ItemGroup>
+
+  <ItemGroup>
+
+  </ItemGroup>
+
+</Project>
