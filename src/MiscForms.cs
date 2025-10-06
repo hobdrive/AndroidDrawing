@@ -19,9 +19,11 @@ namespace System.Windows.Forms
             Graphics = g;
             ClipRectangle = r;
         }
-        public Graphics Graphics{get; set;}
-        public Rectangle ClipRectangle{get; set;}
+        public Graphics Graphics { get; set; }
+        public Rectangle ClipRectangle { get; set; }
     }
+
+#if OLD_ANDROID_XAMARIN
 
     public class Timer : IDisposable
     {
@@ -59,5 +61,8 @@ namespace System.Windows.Forms
             cdt = null;
         }
     }
+
+#endif
+
 }
 

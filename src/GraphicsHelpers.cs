@@ -162,10 +162,11 @@ namespace System.Drawing
     }
 #endif
 
+#if OLD_ANDROID_XAMARIN
     public class MouseEventArgs
     {
-        public int X{get; set;}
-        public int Y{get; set;}
+        public int X { get; set; }
+        public int Y { get; set; }
 
         public MouseEventArgs(int X, int Y)
         {
@@ -173,6 +174,7 @@ namespace System.Drawing
             this.Y = Y;
         }
     }
+#endif
 
     public abstract class Image : IDisposable
     {
