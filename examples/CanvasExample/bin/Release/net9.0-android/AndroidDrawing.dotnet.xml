@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AndroidDrawing.dotnet</name>
+    </assembly>
+    <members>
+        <member name="M:System.Drawing.Graphics.APixels(System.Int32)">
+            Converts from Points (72pt per inch) to android font size pixels
+            TODO: take into account density here?
+        </member>
+        <member name="T:androiddrawing.Resource">
+            <summary>
+            Android Resource Designer class.
+            Exposes the Android Resource designer assembly into the project Namespace.
+            </summary>
+        </member>
+    </members>
+</doc>

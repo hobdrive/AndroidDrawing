@@ -20,14 +20,17 @@ jobs:
       with:
         dotnet-version: '9.0.x'
         
-    - name: Install .NET MAUI workload
-      run: dotnet workload install android maui
+    - name: Install .NET Android workload
+      run: dotnet workload install android
       
     - name: Restore dependencies
       run: dotnet restore AndroidDrawing.dotnet.csproj
       
     - name: Build library
       run: dotnet build AndroidDrawing.dotnet.csproj --configuration Release --no-restore
+      
+    - name: Restore example app dependencies
+      run: dotnet restore examples/CanvasExample/CanvasExample.csproj
       
     - name: Build example app
       run: dotnet build examples/CanvasExample/CanvasExample.csproj --configuration Release --no-restore

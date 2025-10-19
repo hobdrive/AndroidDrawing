@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace CanvasExample
 {
-    [Activity(Label = "@string/app_name", MainLauncher = true)]
+    [Activity(Label = "Canvas Example", MainLauncher = true)]
     public class MainActivity : Activity
     {
         protected override void OnCreate(Bundle? savedInstanceState)
