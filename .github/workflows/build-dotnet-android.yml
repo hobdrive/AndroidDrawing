@@ -1,0 +1,33 @@
+name: Build .NET Android
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Install .NET MAUI workload
+      run: dotnet workload install android maui
+      
+    - name: Restore dependencies
+      run: dotnet restore AndroidDrawing.dotnet.csproj
+      
+    - name: Build library
+      run: dotnet build AndroidDrawing.dotnet.csproj --configuration Release --no-restore
+      
+    - name: Build example app
+      run: dotnet build examples/CanvasExample/CanvasExample.csproj --configuration Release --no-restore
