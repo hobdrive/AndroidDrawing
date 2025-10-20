@@ -21,6 +21,7 @@ jobs:
         dotnet-version: '9.0.x'
         
     - name: Install .NET Android workload
+      working-directory: ${{ github.workspace }}/examples/CanvasExample
       run: dotnet workload install android
       
     - name: Restore dependencies

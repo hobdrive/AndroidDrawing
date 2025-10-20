@@ -14,14 +14,14 @@ namespace CanvasExample
             base.OnCreate(savedInstanceState);
             
             // Create a custom view to demonstrate canvas operations
-            var canvasView = new CanvasView(this);
+            var canvasView = new DrawingView(this);
             SetContentView(canvasView);
         }
     }
 
-    public class CanvasView : View
+    public class DrawingView : View
     {
-        public CanvasView(Context context) : base(context)
+        public DrawingView(Context context) : base(context)
         {
         }
 
